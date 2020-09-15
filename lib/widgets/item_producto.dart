@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../screens/detalle_producto_screen.dart';
+import '../providers/Producto.dart';
 
 class ItemProducto extends StatelessWidget {
-  final String id;
-  final String titulo;
-  final String urlImagen;
+  // final String id;
+  // final String titulo;
+  // final String urlImagen;
 
-  ItemProducto({this.id, this.titulo, this.urlImagen});
+  // ItemProducto({this.id, this.titulo, this.urlImagen});
 
   @override
   Widget build(BuildContext context) {
+    final listenerProducto = Provider.of<Producto>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: GridTile(
@@ -17,21 +20,30 @@ class ItemProducto extends StatelessWidget {
           onTap: () {
             Navigator.of(context).pushNamed(
               DetalleProductoScreen.routeName,
-              arguments: id,
+              arguments: listenerProducto.id,
             );
           },
           child: Image.network(
-            urlImagen,
+            listenerProducto.imagenUrl,
             fit: BoxFit.cover,
           ),
         ),
         footer: GridTileBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.favorite,
-              color: Theme.of(context).accentColor,
+          ////////////////
+          ///  Se usa consumer para el rebuild de los widgets que sean necesarios
+          ///
+          leading: Consumer<Producto>(
+            builder: (context, value, _) => IconButton(
+              icon: Icon(
+                listenerProducto.esFavorito
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: Theme.of(context).accentColor,
+              ),
+              onPressed: () {
+                listenerProducto.toggleEstadoFavorito();
+              },
             ),
-            onPressed: null,
           ),
           trailing: IconButton(
             icon: Icon(
@@ -42,7 +54,7 @@ class ItemProducto extends StatelessWidget {
           ),
           backgroundColor: Colors.black54,
           title: Text(
-            titulo,
+            listenerProducto.titulo,
             textAlign: TextAlign.center,
           ),
         ),

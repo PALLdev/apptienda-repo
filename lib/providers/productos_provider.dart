@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/Producto.dart';
+import './Producto.dart';
 
 class ProductosProvider with ChangeNotifier {
   List<Producto> _productosProviderList = [
@@ -38,19 +38,39 @@ class ProductosProvider with ChangeNotifier {
     ),
   ];
 
+  // var _mostrarFavoritosOnly = false;
+
 //////////
   ///    Retornamos una copia de la lista de productos para que esta pueda modificarse
   ///    solo a traves de los metodos que yo defina (addProducto) y no desde cualquier lugar donde haga import al provider.
   ///    Cada vez que se llama a algun metodo (osea haya cambios en la lista) notificamos a los widget que tengan Listener a este provider
   ///    de que se hicieron cambios en la lista de productos (ChangeNotifier, noifyListeners) para que estos widgets se actualizen con la lista
   ///
+  ///
+  ///
   List<Producto> get listaProductosProvider {
     return [..._productosProviderList];
+  }
+
+  List<Producto> get productosFavoritos {
+    return _productosProviderList
+        .where((producto) => producto.esFavorito)
+        .toList();
   }
 
   Producto buscarPorId(String id) {
     return _productosProviderList.firstWhere((producto) => producto.id == id);
   }
+
+  // void mostrarProdFavoritosOnly() {
+  //   _mostrarFavoritosOnly = true;
+  //   notifyListeners();
+  // }
+
+  // void mostrarTodosProd() {
+  //   _mostrarFavoritosOnly = false;
+  //   notifyListeners();
+  // }
 
   void addProducto() {
     notifyListeners();

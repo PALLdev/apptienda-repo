@@ -14,7 +14,8 @@ class MyApp extends StatelessWidget {
     ///////////////////////
     ///  changenotifierprovider otorga una clase oculta a los widgets para que cuando esta cambia,
     ///  actualizar solo los child(widgets) con un listener activo a esa clase oculta
-    ///
+    ///   No usamos .value ya que necesitamos instanciar objetos de producto, por lo que
+    ///   es mejor utilizar el metodo create y no el value que pide changenotifierprovider  .value
     ///
     return ChangeNotifierProvider(
       create: (ctx) => ProductosProvider(),
