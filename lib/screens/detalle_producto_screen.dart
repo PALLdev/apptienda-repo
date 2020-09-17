@@ -29,7 +29,40 @@ class DetalleProductoScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: Container(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: 300,
+              child: Image.network(
+                datosProductoSelected.imagenUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '\$${datosProductoSelected.precio.toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(height: 5),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+              ),
+              child: Text(
+                datosProductoSelected.descripcion,
+                softWrap: true,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../widgets/grid_productos.dart';
 import '../widgets/drawer.dart';
 import '../providers/productos_provider.dart';
+import '../widgets/badge.dart';
+import '../providers/carro.dart';
+import '../screens/carro_screen.dart';
 
 enum OpcionesFiltroGrid {
   Favoritos,
@@ -20,6 +23,7 @@ class _OverviewProductosScreenState extends State<OverviewProductosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final listenerCarro = Provider.of<Carro>(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -46,6 +50,20 @@ class _OverviewProductosScreenState extends State<OverviewProductosScreen> {
                 }
               });
             },
+          ),
+          Consumer<Carro>(
+            builder: (_, carro, ch) => Badge(
+              child: ch,
+              value: carro.contarArticulosCarro.toString(),
+            ),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  CarroScreen.routeName,
+                );
+              },
+            ),
           ),
         ],
         title: Text(
