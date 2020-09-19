@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/productos_provider.dart';
 import './item_producto.dart';
-import '../providers/Producto.dart';
 
 class GridProductos extends StatelessWidget {
   final bool verSoloFavoritos;

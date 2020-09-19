@@ -49,6 +49,36 @@ class ItemListaCarro extends StatelessWidget {
       onDismissed: (direction) {
         Provider.of<Carro>(context, listen: false).borrarArticulo(idProducto);
       },
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              'Confirma la eliminación',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            content: Text(
+                '¿Estas seguro de que deseas eliminar este producto de tu carro de compras?'),
+            actions: [
+              FlatButton(
+                child: Text('Cancelar'),
+                onPressed: () {
+                  Navigator.of(ctx).pop(false);
+                },
+              ),
+              FlatButton(
+                textColor: Theme.of(context).errorColor,
+                child: Text('Eliminar'),
+                onPressed: () {
+                  Navigator.of(ctx).pop(true);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

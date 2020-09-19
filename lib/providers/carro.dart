@@ -60,6 +60,26 @@ class Carro with ChangeNotifier {
     notifyListeners();
   }
 
+  void eliminarSingleArticulo(String id) {
+    if (!_listaProductosEnCarro.containsKey(id)) {
+      return;
+    }
+    if (_listaProductosEnCarro[id].cantidad > 1) {
+      _listaProductosEnCarro.update(
+        id,
+        (existingArticulo) => ArticuloCarro(
+          id: existingArticulo.id,
+          titulo: existingArticulo.titulo,
+          cantidad: existingArticulo.cantidad - 1,
+          precio: existingArticulo.precio,
+        ),
+      );
+    } else {
+      _listaProductosEnCarro.remove(id);
+    }
+    notifyListeners();
+  }
+
   void borrarArticulo(String id) {
     _listaProductosEnCarro.remove(id);
     notifyListeners();

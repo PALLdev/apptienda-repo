@@ -55,6 +55,29 @@ class ItemProducto extends StatelessWidget {
             onPressed: () {
               listenerCarro.addArticuloAlCarro(listenerProducto.id,
                   listenerProducto.titulo, listenerProducto.precio);
+              //////////////////
+              ///  Scafolf.of(context) accede a una conexion con el primer scafold() que encuentre sobre el
+              ///  y accede a propiedades que controlan la pagina completa
+              ///  en este caso el scafold de overview_productos_screen
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Agregado al carro!',
+                    // textAlign: TextAlign.center,
+                  ),
+                  backgroundColor: Theme.of(context).primaryColorDark,
+                  duration: Duration(seconds: 1),
+                  /////// para el UNDO debo quitar el producto
+                  ///     de la lista de articulos en el carro
+                  action: SnackBarAction(
+                      label: 'Deshacer',
+                      onPressed: () {
+                        listenerCarro
+                            .eliminarSingleArticulo(listenerProducto.id);
+                      }),
+                ),
+              );
             },
           ),
           backgroundColor: Colors.black54,
