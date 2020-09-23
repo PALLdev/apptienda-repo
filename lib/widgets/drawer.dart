@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/pedidos_screen.dart';
-import '../screens/productos_usuario_screen.dart';
+import '../screens/mantenedor_productos_screen.dart';
 
 class DrawerPersonalizado extends StatelessWidget {
   Widget buildOpcionDrawer(
@@ -40,7 +40,7 @@ class DrawerPersonalizado extends StatelessWidget {
               context, Icons.payment, 'Mis pedidos', PedidosScreen.routeName),
           Divider(),
           buildOpcionDrawer(context, Icons.edit, 'Administrar productos',
-              ProductosUsuarioScreen.routeName),
+              MantenedorProductosScreen.routeName),
           Divider(),
         ],
       ),

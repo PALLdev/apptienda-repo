@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/grid_productos.dart';
 import '../widgets/drawer.dart';
-import '../providers/productos_provider.dart';
 import '../widgets/badge.dart';
 import '../providers/carro.dart';
 import '../screens/carro_screen.dart';

@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import '../providers/productos_provider.dart';
 import '../widgets/item_list_productos_user.dart';
 import '../widgets/drawer.dart';
+import './add_producto_screen.dart';
 
-class ProductosUsuarioScreen extends StatelessWidget {
+class MantenedorProductosScreen extends StatelessWidget {
   static const routeName = '/productos-usuario';
 
   @override
@@ -16,7 +17,9 @@ class ProductosUsuarioScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushNamed(AddProductoScreen.routeName);
+            },
           )
         ],
       ),
