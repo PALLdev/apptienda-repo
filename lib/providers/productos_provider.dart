@@ -72,7 +72,37 @@ class ProductosProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProducto() {
+  void addProducto(Producto producto) {
+//  sin id definido por la base de datos
+    final nuevoProducto = Producto(
+      id: DateTime.now().toString(),
+      titulo: producto.titulo,
+      descripcion: producto.descripcion,
+      imagenUrl: producto.imagenUrl,
+      precio: producto.precio,
+    );
+
+    _productosProviderList.add(nuevoProducto);
+
+    //_productosProviderList.insert(0, nuevoProducto); // poner al comienzo de la lista
+
+    notifyListeners();
+  }
+
+  void updateProducto(String id, Producto nuevoProducto) {
+    final indexProducto =
+        _productosProviderList.indexWhere((element) => element.id == id);
+    if (indexProducto >= 0) {
+      //osea que existe en la lista (validacion adicional)
+      _productosProviderList[indexProducto] = nuevoProducto;
+      notifyListeners();
+    } else {
+      print('Error... No existe el producto que se quiere actualizar');
+    }
+  }
+
+  void deleteProducto(String id) {
+    _productosProviderList.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }

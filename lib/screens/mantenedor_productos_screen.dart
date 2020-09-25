@@ -29,6 +29,7 @@ class MantenedorProductosScreen extends StatelessWidget {
         itemBuilder: (ctx, index) => Column(
           children: [
             ItemListProductosUser(
+              lsnrProductos.listaProductosProvider[index].id,
               lsnrProductos.listaProductosProvider[index].titulo,
               lsnrProductos.listaProductosProvider[index].imagenUrl,
             ),

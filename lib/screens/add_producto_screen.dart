@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../providers/Producto.dart';
+import '../providers/productos_provider.dart';
 
 class AddProductoScreen extends StatefulWidget {
   static const routeName = '/add-producto';
@@ -23,26 +25,81 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
     imagenUrl: "",
     precio: 0.0,
   );
+  var _isInit = true;
+
+  var _valoresIniciales = {
+    'titulo': '',
+    'precio': '',
+    'descripcion': '',
+    'urlImagen': '',
+  };
 
   /// muestra el preview de la imagen al cambiar el focus a otro input
+  /// valido que no se muestre una imagen si la url no es valida
   void _updateImagenPreviewPorFocus() {
     if (!_imgUrlFocus.hasFocus) {
+      if ((!_urlImagenController.text.startsWith('http') &&
+              !_urlImagenController.text.startsWith('https')) ||
+          (!_urlImagenController.text.endsWith('.png') &&
+              !_urlImagenController.text.endsWith('.jpg') &&
+              !_urlImagenController.text.endsWith('.jpeg'))) {
+        return;
+      }
       setState(() {});
     }
   }
 
   void _saveFormulario() {
+    final formularioValido = _formKey.currentState.validate();
+    if (!formularioValido) {
+      return;
+    }
     _formKey.currentState.save();
-    print(_nuevoProducto.titulo);
-    print(_nuevoProducto.precio);
-    print(_nuevoProducto.descripcion);
-    print(_nuevoProducto.imagenUrl);
+    // debo validar para que al hacer el update no me ingrese el mismo producto otra vez,
+    // debo asegurarme que TODOS los datos del producto que sera reemplazado se mantengan en el nuevo
+    // y se actualizen solo los datos que el usuario modifique (onSaved) En este caso no perder el valor
+    // del esFavorito ni el id
+    if (_nuevoProducto.id != null) {
+      Provider.of<ProductosProvider>(context, listen: false)
+          .updateProducto(_nuevoProducto.id, _nuevoProducto);
+    } else {
+      Provider.of<ProductosProvider>(context, listen: false)
+          .addProducto(_nuevoProducto);
+    }
+
+    Navigator.of(context)
+        .pop(); // para volver a la ventana anterior despues de agregar
   }
 
   @override
   void initState() {
     super.initState();
     _imgUrlFocus.addListener(_updateImagenPreviewPorFocus);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // creamos una variable isInit para obtener la id solo la primera vez que se ejecute este metodo
+    // y no cada vez q se reejecuta ( didChangeDependencies() )
+    // luego de los que queremos hacer cambiamos el valor de la variable a false para q no se ejecute nuevamente
+    if (_isInit) {
+      final idProducto = ModalRoute.of(context).settings.arguments as String;
+
+      if (idProducto != null) {
+        _nuevoProducto = Provider.of<ProductosProvider>(context, listen: false)
+            .buscarPorId(idProducto);
+        _valoresIniciales = {
+          'titulo': _nuevoProducto.titulo,
+          'precio': '${_nuevoProducto.precio.toStringAsFixed(0)}',
+          'descripcion': _nuevoProducto.descripcion,
+          //'urlImagen': _nuevoProducto.imagenUrl,
+          'urlImagen': '',
+        };
+        _urlImagenController.text = _nuevoProducto.imagenUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -78,11 +135,23 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
             child: Column(
               children: [
                 TextFormField(
+                  initialValue: _valoresIniciales['titulo'],
                   decoration: InputDecoration(
                     labelText: 'Nombre producto',
                     alignLabelWithHint: true,
                   ),
                   textInputAction: TextInputAction.next,
+                  /////////////////////////////////
+                  // con el return null le decimos que no hay error. (input correcto)
+                  // return string para mostrar mensaje de error
+                  // en decoration del Textformfield puedo configurar como se ve el mensaje de error
+                  // value es lo que ingreso el usuario
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Debe ingresar un nombre';
+                    }
+                    return null;
+                  },
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_precioInputFocus);
                   },
@@ -92,7 +161,8 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
                   onSaved: (newValue) {
                     _nuevoProducto = Producto(
                       titulo: newValue,
-                      id: null,
+                      id: _nuevoProducto.id,
+                      esFavorito: _nuevoProducto.esFavorito,
                       descripcion: _nuevoProducto.descripcion,
                       imagenUrl: _nuevoProducto.imagenUrl,
                       precio: _nuevoProducto.precio,
@@ -100,6 +170,7 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
                   },
                 ),
                 TextFormField(
+                    initialValue: _valoresIniciales['precio'],
                     decoration: InputDecoration(
                       labelText: 'Precio',
                       alignLabelWithHint: true,
@@ -110,26 +181,50 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
                     onFieldSubmitted: (_) {
                       FocusScope.of(context).requestFocus(_descripInputFocus);
                     },
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Debe ingresar un precio.';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'El precio debe ser un número valido.';
+                      }
+                      if (double.parse(value) <= 0) {
+                        return 'El precio debe ser mayor a cero.';
+                      }
+                      return null;
+                    },
                     onSaved: (newValue) {
                       _nuevoProducto = Producto(
                         precio: double.parse(newValue),
-                        id: null,
+                        id: _nuevoProducto.id,
+                        esFavorito: _nuevoProducto.esFavorito,
                         titulo: _nuevoProducto.titulo,
                         descripcion: _nuevoProducto.descripcion,
                         imagenUrl: _nuevoProducto.imagenUrl,
                       );
                     }),
                 TextFormField(
+                  initialValue: _valoresIniciales['descripcion'],
                   decoration: InputDecoration(
                     labelText: 'Descripción',
                   ),
                   keyboardType: TextInputType.multiline,
                   maxLines: 3,
                   focusNode: _descripInputFocus,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Debe ingresar una descripción.';
+                    }
+                    if (value.length < 10) {
+                      return 'La descripcion es demasiado corta.';
+                    }
+                    return null;
+                  },
                   onSaved: (newValue) {
                     _nuevoProducto = Producto(
                       descripcion: newValue,
-                      id: null,
+                      id: _nuevoProducto.id,
+                      esFavorito: _nuevoProducto.esFavorito,
                       titulo: _nuevoProducto.titulo,
                       precio: _nuevoProducto.precio,
                       imagenUrl: _nuevoProducto.imagenUrl,
@@ -174,6 +269,21 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
                         ),
                         keyboardType: TextInputType.url,
                         textInputAction: TextInputAction.done,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Debe ingresar URL de la imagen.';
+                          }
+                          if (!value.startsWith('http') &&
+                              !value.startsWith('https')) {
+                            return 'Ingrese una URL valida.';
+                          }
+                          if (!value.endsWith('.jpg') &&
+                              !value.endsWith('.jpeg') &&
+                              !value.endsWith('.png')) {
+                            return 'Formato de la imagen no valido.';
+                          }
+                          return null;
+                        },
                         onFieldSubmitted: (_) {
                           _saveFormulario();
                         },
@@ -186,7 +296,8 @@ class _EditarProductoScreenState extends State<AddProductoScreen> {
                         onSaved: (newValue) {
                           _nuevoProducto = Producto(
                             imagenUrl: newValue,
-                            id: null,
+                            id: _nuevoProducto.id,
+                            esFavorito: _nuevoProducto.esFavorito,
                             titulo: _nuevoProducto.titulo,
                             descripcion: _nuevoProducto.descripcion,
                             precio: _nuevoProducto.precio,

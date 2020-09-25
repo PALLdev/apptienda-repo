@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../screens/add_producto_screen.dart';
+import '../providers/productos_provider.dart';
 
 class ItemListProductosUser extends StatelessWidget {
+  final String id;
   final String titulo;
   final String imgUrl;
 
   ItemListProductosUser(
+    this.id,
     this.titulo,
     this.imgUrl,
   );
@@ -24,14 +29,20 @@ class ItemListProductosUser extends StatelessWidget {
                 Icons.edit,
                 color: Theme.of(context).accentColor,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(AddProductoScreen.routeName, arguments: id);
+              },
             ),
             IconButton(
               icon: Icon(
                 Icons.delete,
                 color: Theme.of(context).errorColor,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Provider.of<ProductosProvider>(context, listen: false)
+                    .deleteProducto(id);
+              },
             ),
           ],
         ),
