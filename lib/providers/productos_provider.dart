@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import './Producto.dart';
 
 class ProductosProvider with ChangeNotifier {
@@ -73,20 +75,40 @@ class ProductosProvider with ChangeNotifier {
   // }
 
   void addProducto(Producto producto) {
+    const url = 'https://apptienda-flutter.firebaseio.com/Productos.json';
+    http
+        .post(
+      url,
+      body: json.encode({
+        'titulo': producto.titulo,
+        'precio': producto.precio,
+        'descripcion': producto.descripcion,
+        'ImagenUrl': producto.imagenUrl,
+        'esFavorito': producto.esFavorito,
+      }),
+    )
+        .then((response) {
+      print(json.decode(response.body));
+      final nuevoProducto = Producto(
+        id: json.decode(response.body)['name'],
+        titulo: producto.titulo,
+        descripcion: producto.descripcion,
+        imagenUrl: producto.imagenUrl,
+        precio: producto.precio,
+      );
+      _productosProviderList.add(nuevoProducto);
+      //_productosProviderList.insert(0, nuevoProducto); // poner al comienzo de la lista
+      notifyListeners();
+    });
+
 //  sin id definido por la base de datos
-    final nuevoProducto = Producto(
-      id: DateTime.now().toString(),
-      titulo: producto.titulo,
-      descripcion: producto.descripcion,
-      imagenUrl: producto.imagenUrl,
-      precio: producto.precio,
-    );
-
-    _productosProviderList.add(nuevoProducto);
-
-    //_productosProviderList.insert(0, nuevoProducto); // poner al comienzo de la lista
-
-    notifyListeners();
+    // final nuevoProducto = Producto(
+    //   id: DateTime.now().toString(),
+    //   titulo: producto.titulo,
+    //   descripcion: producto.descripcion,
+    //   imagenUrl: producto.imagenUrl,
+    //   precio: producto.precio,
+    // );
   }
 
   void updateProducto(String id, Producto nuevoProducto) {
